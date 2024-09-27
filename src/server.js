@@ -8,6 +8,9 @@ const port = process.env.PORT || process.env.NODE_PORT || 3000;
 const urlStruct = {
   // INSERT ENDPOINTS
   '/': htmlHandler.getIndex,
+  '/style.css': htmlHandler.getCss,
+  '/getUsers': jsonHandler.getUsers,
+  '/notReal': jsonHandler.notReal,
 };
 
 // handle navigation
@@ -16,12 +19,11 @@ const onRequest = (request, response) => {
   const protocol = request.connection.encrypted ? 'https' : 'http';
   const parsedUrl = new URL(request.url, `${protocol}://${request.headers.host}`);
 
-  request.acceptedTypes = request.headers.accept.split(',');
-
   if (urlStruct[parsedUrl.pathname]) {
     urlStruct[parsedUrl.pathname](request, response);
   } else {
     //
+    jsonHandler.notFound(request, response);
   }
 };
 
