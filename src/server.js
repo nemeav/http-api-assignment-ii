@@ -37,17 +37,18 @@ const parseBody = (request, response, handler) => {
 const handlePost = (request, response, parsedUrl) => {
   if (parsedUrl.pathname === '/addUser') {
     parseBody(request, response, jsonHandler.addUser);
+  } else {
+    jsonHandler.notFound(request, response);
   }
 };
 
-// get
 const handleGet = (request, response, parsedUrl) => {
   if (parsedUrl.pathname === '/style.css') {
     htmlHandler.getCss(request, response);
   } else if (parsedUrl.pathname === '/getUsers') {
     jsonHandler.getUsers(request, response);
   } else {
-    htmlHandler.getIndex(request, response);
+    jsonHandler.notFound(request, response);
   }
 };
 
@@ -56,7 +57,7 @@ const onRequest = (request, response) => {
   const parsedUrl = new URL(request.url, `${protocol}://${request.headers.host}`);
 
   if (request.method === 'POST') {
-    handlePost(request, response, parsedUrl); // taken straight from url instead of using struct
+    handlePost(request, response, parsedUrl);
   } else {
     handleGet(request, response, parsedUrl);
   }

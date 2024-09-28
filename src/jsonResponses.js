@@ -18,26 +18,20 @@ const respondJSON = (request, response, status, object) => {
 
 // return current collection of people/entries
 const getUsers = (request, response) => {
-  // json object to send
   const responseJSON = {
-    users,
+    users: Object.values(users), // Converts user objects into an array
   };
 
-  // return 200 with message
   respondJSON(request, response, 200, responseJSON);
 };
 
-// add new entries w/ approporiate codes
+// Add new users with appropriate status codes
 const addUser = (request, response) => {
-  // default
-  const responseJSON = {
-    message: 'Name and age are both required.',
-  };
-
+  const responseJSON = { message: 'Name and age are both required.' };
   const { name, age } = request.body;
 
   if (!name || !age) {
-    responseJSON.id = 'missingParams';
+    responseJSON.id = 'addUserMissingParams';
     return respondJSON(request, response, 400, responseJSON);
   }
 
@@ -45,12 +39,10 @@ const addUser = (request, response) => {
 
   if (!users[name]) {
     responseCode = 201;
-    users[name] = {
-      name,
-    };
+    users[name] = { name, age };
+  } else {
+    users[name].age = age; // Update the age if user exists
   }
-
-  users[name].age = age;
 
   if (responseCode === 201) {
     responseJSON.message = 'Created Successfully';
@@ -60,7 +52,7 @@ const addUser = (request, response) => {
   return respondJSON(request, response, responseCode, {});
 };
 
-// error page
+// Not Found handler
 const notFound = (request, response) => {
   const responseJSON = {
     message: 'The page you are looking for was not found',
