@@ -9,7 +9,10 @@ const respondJSON = (request, response, status, object) => {
     'Content-Length': Buffer.byteLength(content, 'utf8'),
   });
 
-  response.write(content);
+  // get vs head differentiation
+  if (request.method !== 'HEAD' && status !== 204) {
+    response.write(content);
+  }
   response.end();
 };
 
@@ -24,6 +27,39 @@ const getUsers = (request, response) => {
   respondJSON(request, response, 200, responseJSON);
 };
 
+// add new entries w/ approporiate codes
+const addUser = (request, response) => {
+  // default
+  const responseJSON = {
+    message: 'Name and age are both required.',
+  };
+
+  const { name, age } = request.body;
+
+  if (!name || !age) {
+    responseJSON.id = 'missingParams';
+    return respondJSON(request, response, 400, responseJSON);
+  }
+
+  let responseCode = 204;
+
+  if (!users[name]) {
+    responseCode = 201;
+    users[name] = {
+      name,
+    };
+  }
+
+  users[name].age = age;
+
+  if (responseCode === 201) {
+    responseJSON.message = 'Created Successfully';
+    return respondJSON(request, response, responseCode, responseJSON);
+  }
+
+  return respondJSON(request, response, responseCode, {});
+};
+
 // error page
 const notFound = (request, response) => {
   const responseJSON = {
@@ -36,5 +72,6 @@ const notFound = (request, response) => {
 
 module.exports = {
   getUsers,
+  addUser,
   notFound,
 };
