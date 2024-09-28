@@ -6,7 +6,7 @@ const index = fs.readFileSync(`${__dirname}/../client/client.html`);
 const css = fs.readFileSync(`${__dirname}/../client/style.css`);
 
 // PROCESS CONTENT
-const respond = (response, location, type) => {
+const respond = (request, response, location, type) => {
   response.writeHead(200, {
     'Content-Type': type,
     'Content-Length': Buffer.byteLength(location, 'utf8'),
@@ -17,13 +17,13 @@ const respond = (response, location, type) => {
 
 // FUNCS FOR DIFF FILES
 // LOAD CLIENT PAGE
-const getIndex = (response) => {
-  respond(response, index, 'text/html');
+const getIndex = (request, response) => {
+  respond(request, response, index, 'text/html');
 };
 
 // LOAD CSS WITH /STYLE.CSS
-const getCss = (response) => {
-  respond(response, css, 'text/css');
+const getCss = (request, response) => {
+  respond(request, response, css, 'text/css');
 };
 
 // EXPORTS

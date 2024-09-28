@@ -22,7 +22,6 @@ const onRequest = (request, response) => {
   if (urlStruct[parsedUrl.pathname]) {
     urlStruct[parsedUrl.pathname](request, response);
   } else {
-    //
     jsonHandler.notFound(request, response);
   }
 };
