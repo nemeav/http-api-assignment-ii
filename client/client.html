@@ -6,45 +6,47 @@
   <link rel="stylesheet" type="text/css" href="/style.css">
 
   <script>
-const handleResponse = (response) => {
+    // Handles our FETCH response.
+    const handleResponse = async (response) => {
       const content = document.querySelector('#content');
-      content.innerHTML = ''; // Clear previous content
 
-      // Handle status codes
+      // Clear content before adding new information
+      content.innerHTML = '';
+
+      // Header titles based on the status code
       switch (response.status) {
-        case 200:
+        case 200: // success
           content.innerHTML = `<b>Success</b>`;
           break;
-        case 201:
-          content.innerHTML = `<b>Created</b>`;
+        case 201: // created
+          content.innerHTML = '<b>Created</b>';
           break;
-        case 204:
-          content.innerHTML = `<b>Updated (No Content)</b>`;
-          break;
-        case 400:
+        case 204: // updated (no content)
+          content.innerHTML = '<b>Updated (No Content)</b>';
+          return;
+        case 400: // bad request
           content.innerHTML = `<b>Bad Request</b>`;
           break;
-        case 404:
         default:
-          content.innerHTML = `<b>Resource Not Found</b>`;
           break;
       }
 
-      // If the request was a GET request and successful, display the data
-      if (response.method === 'GET' && response.status === 200) {
-        response.json().then((parsedResponse) => {
-          content.innerHTML += `<p>Data: ${JSON.stringify(parsedResponse.users)}</p>`;
-        });
+      // Handle JSON response based on method
+      if (response.status === 200 && response.method === 'GET') {
+        const obj = await response.json();
+        content.innerHTML += `<p>${JSON.stringify(obj.users)}</p>`;
       }
     };
 
+    // Uses fetch to send a POST request.
     const sendPost = async (nameForm) => {
       const url = nameForm.getAttribute('action');
       const method = nameForm.getAttribute('method');
+
       const nameField = nameForm.querySelector('#nameField');
       const ageField = nameForm.querySelector('#ageField');
 
-      const formData = `name=${encodeURIComponent(nameField.value)}&age=${encodeURIComponent(ageField.value)}`;
+      const formData = `name=${nameField.value}&age=${ageField.value}`;
 
       let response = await fetch(url, {
         method: method,
@@ -58,11 +60,19 @@ const handleResponse = (response) => {
       handleResponse(response);
     };
 
-    const sendGet = async (userForm) => {
+    // Function to handle GET and HEAD requests.
+    const sendGetOrHead = async (userForm) => {
       const url = userForm.querySelector('#urlField').value;
       const method = userForm.querySelector('#methodSelect').value.toUpperCase();
 
-      const response = await fetch(url, { method });
+      let response = await fetch(url, {
+        method: method,
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+
+      response.method = method; // Pass method to response object to differentiate GET and HEAD
       handleResponse(response);
     };
 
@@ -70,19 +80,25 @@ const handleResponse = (response) => {
       const nameForm = document.querySelector('#nameForm');
       const userForm = document.querySelector('#userForm');
 
-      nameForm.addEventListener('submit', (e) => {
-        e.preventDefault();
+      // Handle adding users
+      const addUser = (e) => {
+        e.preventDefault();  // Prevent form redirection
         sendPost(nameForm);
-      });
+        return false;  // Ensure no form submission occurs
+      };
 
-      userForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        sendGet(userForm);
-      });
+      // Handle fetching users
+      const fetchUsers = (e) => {
+        e.preventDefault();  // Prevent form redirection
+        sendGetOrHead(userForm);
+        return false;  // Ensure no form submission occurs
+      };
+
+      nameForm.addEventListener('submit', addUser);
+      userForm.addEventListener('submit', fetchUsers);
     };
 
     window.onload = init;
-    
   </script>
 </head>
 
