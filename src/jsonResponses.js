@@ -37,10 +37,11 @@ const addUser = (request, response) => {
   const { name, age } = request.body;
 
   if (!name || !age) {
-    responseJSON.id = 'missingParams';
+    responseJSON.id = 'addUserMissingParams';
     return respondJSON(request, response, 400, responseJSON);
   }
 
+  // default - head
   let responseCode = 204;
 
   if (!users[name]) {
